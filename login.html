@@ -46,9 +46,10 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="script.js"></script>
+
 <script src="particles-config.js"></script>
+
 <script>
   var failCount = 0;
 
@@ -77,7 +78,7 @@
     }
 
     if (typeof GLITCH === 'undefined') {
-      alert('Errore critico: Il motore GLITCH (script.js) non è stato caricato correttamente.');
+      alert('Errore critico: Il file script.js non si è caricato correttamente.');
       return;
     }
 
@@ -98,7 +99,7 @@
     GLITCH.setStaffSession();
     var successEl = document.getElementById('login-success');
     if (successEl) {
-      successEl.textContent = 'Autenticazione riuscita. Caricamento pannello di controllo...';
+      successEl.textContent = 'Autenticazione riuscita. Inizializzazione...';
       successEl.classList.add('visible');
     }
     
