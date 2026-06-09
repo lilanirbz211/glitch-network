@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="particles-js"></div>
-
 <div class="page-wrapper">
   <nav>
     <a href="index.html" class="nav-logo neon-flicker">GLITCH</a>
@@ -21,16 +19,14 @@
 
   <div class="header-logo-wrap">
     <div class="header-logo">PORTALE STAFF</div>
-    <div class="hero-sub">TERMINALE AD ACCESSO LIMITATO // SOLO PERSONALE AUTORIZZATO</div>
+    <div class="hero-sub">TERMINALE AD ACCESSO LIMITATO</div>
   </div>
 
   <div class="section">
     <div class="card-container">
       <div class="card-title">&#9632; Autenticazione Richiesta</div>
-
       <div class="alert alert-error" id="login-error"></div>
-      <div class="alert alert-success" id="login-success"></div>
-
+      
       <div class="form-group">
         <label>Identificativo Operatore</label>
         <input type="text" id="staff-username" autocomplete="off" placeholder="CORE_ID" />
@@ -41,71 +37,35 @@
         <input type="password" id="staff-password" placeholder="••••••••" />
       </div>
 
-      <button class="btn btn-red" onclick="doStaffLogin()">INIZIALIZZA CONNESSIONE</button>
+      <button class="btn btn-red" onclick="doStaffLogin()">ACCEDI AL SISTEMA</button>
     </div>
   </div>
 </div>
 
 <script src="script.js"></script>
-
-<script src="particles-config.js"></script>
-
 <script>
-  var failCount = 0;
-
-  function showError(msg) {
-    var el = document.getElementById('login-error');
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.add('visible');
-    document.getElementById('staff-username').style.borderColor = 'var(--neon-red)';
-    document.getElementById('staff-password').style.borderColor = 'var(--neon-red)';
-    document.getElementById('staff-password').value = '';
-    setTimeout(function() {
-      el.classList.remove('visible');
-      document.getElementById('staff-username').style.borderColor = '';
-      document.getElementById('staff-password').style.borderColor = '';
-    }, 4000);
-  }
-
   function doStaffLogin() {
     var username = document.getElementById('staff-username').value.trim();
     var password = document.getElementById('staff-password').value;
 
     if (!username || !password) {
-      showError('Tutti i campi sono obbligatori. Accesso negato.');
+      alert('Tutti i campi sono obbligatori.');
       return;
     }
 
     if (typeof GLITCH === 'undefined') {
-      alert('Errore critico: Il file script.js non si è caricato correttamente.');
+      alert('Errore: script.js non trovato! Controlla di averlo caricato su GitHub/Vercel.');
       return;
     }
 
     var ok = GLITCH.staffLogin(username, password);
     if (!ok) {
-      failCount++;
-      var msgs = [
-        'Credenziali non valide. Accesso negato.',
-        'Autenticazione fallita. Tentativo registrato nel sistema.',
-        'Accesso non autorizzato rilevato. Operazione bloccata.',
-        'Multipli tentativi falliti registrati. Allerta intrusione attiva.'
-      ];
-      showError(msgs[Math.min(failCount - 1, msgs.length - 1)]);
+      alert('Credenziali errate.');
       return;
     }
 
-    failCount = 0;
     GLITCH.setStaffSession();
-    var successEl = document.getElementById('login-success');
-    if (successEl) {
-      successEl.textContent = 'Autenticazione riuscita. Inizializzazione...';
-      successEl.classList.add('visible');
-    }
-    
-    setTimeout(function() {
-      window.location.href = 'dashboard.html';
-    }, 1500);
+    window.location.href = 'dashboard.html';
   }
 </script>
 </body>
