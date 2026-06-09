@@ -1,22 +1,22 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE PRINCIPALE — script.js [FIX FIX FIX]
-   Riparato l'errore registerUser e i crash di sessione.
+   GLITCH MOTORE CORE — script.js [VERSIONE REALE DEFINITIVA]
+   Riparato l'export globale e ottimizzato il redirect dello Staff.
 ═══════════════════════════════════════════════ */
 
 var GLITCH = (function () {
 
-  /* ── CREDENZIALI STAFF ── */
+  /* ── CREDENZIALI STAFF HARDCODED ── */
   var STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
   var STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
-  /* ── CHIAVI REALI STORAGE ── */
+  /* ── CHIAVI DI SISTEMA PER LOCAL STORAGE ── */
   var KEY_USERS       = 'glitch_users_db';
   var KEY_TICKETS     = 'glitch_tickets_db';
   var KEY_NEWS        = 'glitch_news_db';
   var KEY_LEADERBOARD = 'glitch_leaderboard_db';
   var KEY_SESSION     = 'glitch_staff_session';
 
-  /* ── HELPERS STORAGE RETROCOMPATIBILI ── */
+  /* ── ESTRATTORI DATABASE IN MEMORIA ── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY_USERS) || '[]'); }
     catch (e) { return []; }
@@ -53,7 +53,7 @@ var GLITCH = (function () {
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr));
   }
 
-  /* ── GESTIONE LOGIN / SESSIONE STAFF ── */
+  /* ── CONTROLLO ACCESSO & REINDIRIZZAMENTI RETE ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
@@ -68,10 +68,11 @@ var GLITCH = (function () {
 
   function staffLogout() {
     sessionStorage.removeItem(KEY_SESSION);
+    // Ritorna al login rimuovendo l'estensione rigida se serve
     window.location.href = 'login.html';
   }
 
-  /* ── CORE AUTENTICAZIONE UTENTI (CHIAMATI DA ASSISTENZA.HTML) ── */
+  /* ── GESTIONE OPERATORI / UTENTI (ASSISTENZA.HTML) ── */
   function findUser(username, password) {
     var users = getUsers();
     if (password === "") {
@@ -82,11 +83,9 @@ var GLITCH = (function () {
     });
   }
 
-  // QUESTA È LA FUNZIONE CHE MANCAVA O ANDAVA IN ERRORE NELLO SCREENSHOT!
   function registerUser(username, email, password) {
     var users = getUsers();
-    var giaEsiste = users.some(function(u) { return u.username.toLowerCase() === username.toLowerCase(); });
-    if (giaEsiste) {
+    if (users.some(function(u) { return u.username.toLowerCase() === username.toLowerCase(); })) {
       return null;
     }
     var newUser = {
@@ -100,7 +99,7 @@ var GLITCH = (function () {
     return newUser;
   }
 
-  /* ── SISTEMA REALE TICKET ── */
+  /* ── CORE MANAGEMENT TICKET INTERNI ── */
   function createTicket(username, subject, firstMessage) {
     var tickets = getTickets();
     var newTicket = {
@@ -123,26 +122,20 @@ var GLITCH = (function () {
     var tickets = getTickets();
     var ticket = tickets.find(function(t) { return t.id === parseInt(ticketId, 10); });
     if (ticket) {
-      ticket.messages.push({
-        sender: sender,
-        role: role,
-        text: text,
-        time: Date.now()
-      });
+      ticket.messages.push({ sender: sender, role: role, text: text, time: Date.now() });
       saveTickets(tickets);
     }
   }
 
-  function closeTicket(ticketId) {
+  var closeTicket = function(ticketId) {
     var tickets = getTickets();
     var ticket = tickets.find(function(t) { return t.id === parseInt(ticketId, 10); });
     if (ticket) {
       ticket.status = 'closed';
       saveTickets(tickets);
     }
-  }
+  };
 
-  /* ── LIVE PANELS EXTRA (NEWS & CLASSIFICHE) ── */
   function publishNews(content) {
     var news = getNews();
     news.unshift({ content: content, publishedAt: Date.now() });
@@ -158,9 +151,10 @@ var GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── RENDERING DINAMICO LATO DASHBOARD STAFF ── */
+  /* ── PANNELLO RENDERING LIVE (DASHBOARD) ── */
   function renderDashboard() {
-    if (window.location.pathname.includes('dashboard.html') && !isStaffLoggedIn()) {
+    // Se provi ad entrare nella dashboard senza essere loggato, ti rispedisce al login
+    if (window.location.pathname.includes('dashboard') && !isStaffLoggedIn()) {
       window.location.replace('login.html');
       return;
     }
@@ -189,18 +183,17 @@ var GLITCH = (function () {
     var openTickets = tickets.filter(function(t) { return t.status === 'open'; });
 
     if (openTickets.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-dim); font-size:0.8rem; font-style:italic; padding:10px;">Nessuna richiesta di assistenza in coda.</div>';
+      container.innerHTML = '<div style="color:var(--text-dim); font-size:0.8rem; font-style:italic; padding:10px;">Nessun ticket in coda di trasmissione.</div>';
       return;
     }
 
     var html = '';
     for (var i = 0; i < openTickets.length; i++) {
       var t = openTickets[i];
-      
       html += '<div style="border:1px solid rgba(138,43,226,0.3); background:rgba(5,5,16,0.6); padding:14px; border-radius:4px; margin-bottom:12px;">';
       html += '  <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">';
-      html += '    <span style="color:var(--neon-red); font-weight:bold;">TICKET BACKLOG #' + t.id + '</span>';
-      html += '    <span style="color:var(--neon-blue);">Operatore: ' + t.username + ' [' + t.subject + ']</span>';
+      html += '    <span style="color:var(--neon-red); font-weight:bold;">TICKET #' + t.id + '</span>';
+      html += '    <span style="color:var(--neon-blue);">Utente: ' + t.username + ' [' + t.subject + ']</span>';
       html += '  </div>';
       html += '  <div id="chat-' + t.id + '" style="height:140px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:10px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.05);">';
       
@@ -208,13 +201,13 @@ var GLITCH = (function () {
         var m = t.messages[j];
         var color = m.role === 'staff' ? 'var(--neon-red)' : 'var(--neon-blue)';
         html += '    <div style="font-size:0.8rem; margin-bottom:6px;">';
-        html += '      <span style="color:' + color + '; font-weight:bold;">[' + m.sender + ']</span> <span style="color:#fff;">' + m.text + '</span>';
+        html += '      <span style="color:' + color + '; font-weight:bold;">[' + m.sender + ']</span> <span>' + m.text + '</span>';
         html += '    </div>';
       }
       
       html += '  </div>';
       html += '  <div style="display:flex; gap:8px;">';
-      html += '    <input type="text" id="reply-' + t.id + '" style="flex:1; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 10px; font-family:monospace;" placeholder="Rispondi..." onkeypress="if(event.key===\'Enter\')GLITCH.staffReply(' + t.id + ')" autocomplete="off"/>';
+      html += '    <input type="text" id="reply-' + t.id + '" style="flex:1; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 10px; font-family:monospace;" placeholder="Scrivi risposta..." onkeypress="if(event.key===\'Enter\')GLITCH.staffReply(' + t.id + ')" autocomplete="off"/>';
       html += '    <button onclick="GLITCH.staffReply(' + t.id + ')" style="background:var(--neon-blue); border:none; color:#000; padding:6px 16px; font-weight:bold; cursor:pointer;">INVIA</button>';
       html += '    <button onclick="GLITCH.staffClose(' + t.id + ')" style="background:var(--neon-red); border:none; color:#fff; padding:6px 12px; cursor:pointer;">CHIUDI</button>';
       html += '  </div>';
@@ -234,7 +227,7 @@ var GLITCH = (function () {
     if (!tbody) return;
     var lb = getLeaderboard();
     if (lb.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text-dim);text-align:center;padding:16px;">Nessuna voce ancora.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text-dim);text-align:center;padding:16px;">Nessun dato registrato.</td></tr>';
       return;
     }
     var html = '';
@@ -253,25 +246,25 @@ var GLITCH = (function () {
   }
 
   function staffClose(ticketId) {
-    if (confirm('Vuoi chiudere questo ticket?')) {
+    if (confirm('Vuoi chiudere definitivamente questo ticket?')) {
       closeTicket(ticketId);
       renderTicketsAdmin();
       renderStats();
     }
   }
 
-  /* AUTOMATIC INITIALIZER */
+  /* DOM INIZIALIZZATORE AUTOMATICO */
   document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('dashboard.html')) {
+    if (window.location.pathname.includes('dashboard')) {
       renderDashboard();
-      setInterval(renderDashboard, 1000); // LOOP LIVE AD UN SECONDO
+      setInterval(renderDashboard, 1000); // Aggiorna in tempo reale ogni secondo
     }
   });
 
-  /* MAPPATURA ESPOSIZIONE CHIAVI API GLOBALI */
+  /* ESPOSIZIONE TOTALMENTE ACCESSIBILE DA TUTTI I FILE */
   return {
     staffLogin: staffLogin,
-    registerUser: registerUser, // <--- ORA È ESPOSTA PERFETTAMENTE
+    registerUser: registerUser,
     findUser: findUser,
     createTicket: createTicket,
     addTicketMessage: addTicketMessage,
@@ -291,6 +284,7 @@ var GLITCH = (function () {
 
 })();
 
+// Funzione globale delegata per disconnettere lo staff
 window.doLogout = function() {
   GLITCH.staffLogout();
 };
