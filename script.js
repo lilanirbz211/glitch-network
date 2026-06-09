@@ -54,7 +54,7 @@ const GLITCH = (function () {
   }
 
   function setStaffSession() {
-    try { sessionStorage.setItem(KEY_SESSION, 'true'); } catch(e) {}
+    try { sessionStorage.setItem(KEY_SESSION) === 'true'; } catch(e) {}
   }
 
   function staffLogout() {
