@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE PRINCIPALE — script.js [VERSIONE CORE DEFINITIVA]
-   Sincronizzazione Live Utente <-> Staff via LocalStorage
+   GLITCH MOTORE PRINCIPALE — script.js [VERSIONE REALE DEFINITIVA]
+   Allineato perfettamente con la struttura dei tuoi file.
 ═══════════════════════════════════════════════ */
 
 const GLITCH = (function () {
@@ -9,7 +9,7 @@ const GLITCH = (function () {
   const STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
   const STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
-  /* ── CHIAVI STORAGE ── */
+  /* ── CHIAVI LOCAL STORAGE ── */
   const KEY_USERS       = 'glitch_users_db';
   const KEY_TICKETS     = 'glitch_tickets_db';
   const KEY_NEWS        = 'glitch_news_db';
@@ -53,7 +53,7 @@ const GLITCH = (function () {
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr));
   }
 
-  /* ── DISCONNETTI/SESSIONE ── */
+  /* ── LOGIC SECURITY ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
@@ -97,7 +97,7 @@ const GLITCH = (function () {
     return newUser;
   }
 
-  /* ── GESTIONE TICKET ── */
+  /* ── CORE MANAGEMENT TICKET ── */
   function createTicket(username, subject, firstMessage) {
     var tickets = getTickets();
     var newTicket = {
@@ -107,7 +107,7 @@ const GLITCH = (function () {
       status: 'open',
       createdAt: Date.now(),
       messages: [
-        { sender: 'SYSTEM', role: 'staff', text: 'Connessione protetta stabilita col Core.', time: Date.now() },
+        { sender: 'SYSTEM', role: 'staff', text: 'Connessione protetta stabilita col terminale di rete.', time: Date.now() },
         { sender: username, role: 'user', text: firstMessage, time: Date.now() }
       ]
     };
@@ -154,7 +154,7 @@ const GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── LOGICA DI RENDERING LIVE PER LA DASHBOARD STAFF ── */
+  /* ── SISTEMA RENDERING DINAMICO (NIENTE SCHERMO BIANCO) ── */
   function renderDashboard() {
     if (window.location.pathname.includes('dashboard.html') && !isStaffLoggedIn()) {
       window.location.replace('login.html');
@@ -189,38 +189,38 @@ const GLITCH = (function () {
       return;
     }
 
-    // Costruzione stringa HTML pulita per evitare crash di sintassi
+    // Costruzione stringa HTML pulita e ultra-compatibile
     var html = '';
     for (var i = 0; i < openTickets.length; i++) {
       var t = openTickets[i];
       
-      html += '<div style="border: 1px solid rgba(138,43,226,0.3); background: rgba(5,5,16,0.6); padding: 14px; border-radius: 4px; margin-bottom: 12px;">';
+      html += '<div style="border: 1px solid rgba(138,43,226,0.3); background: rgba(5,5,16,0.6); padding: 14px; border-radius: 4px; margin-bottom: 12px; text-align: left;">';
       html += '  <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;">';
       html += '    <span style="color:var(--neon-red); font-weight:bold;">TICKET BACKLOG #' + t.id + '</span>';
       html += '    <span style="color:var(--neon-blue);">Operatore: ' + t.username + ' [' + t.subject + ']</span>';
       html += '  </div>';
-      html += '  <div id="chat-' + t.id + '" style="height:140px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:10px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.05);">';
+      html += '  <div id="chat-' + t.id + '" style="height:145px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:10px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.05); text-align: left;">';
       
       for (var j = 0; j < t.messages.length; j++) {
         var m = t.messages[j];
         var color = m.role === 'staff' ? 'var(--neon-red)' : 'var(--neon-blue)';
-        html += '    <div style="font-size:0.8rem; margin-bottom:6px;">';
+        html += '    <div style="font-size:0.8rem; margin-bottom:6px; line-height: 1.4;">';
         html += '      <span style="color:' + color + '; font-weight:bold;">[' + m.sender + ']</span> <span style="color:#fff;">' + m.text + '</span>';
         html += '    </div>';
       }
       
       html += '  </div>';
       html += '  <div style="display:flex; gap:8px;">';
-      html += '    <input type="text" id="reply-' + t.id + '" style="flex:1; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 10px; font-family:monospace;" placeholder="Rispondi..." onkeypress="if(event.key===\'Enter\')GLITCH.staffReply(' + t.id + ')" autocomplete="off"/>';
-      html += '    <button onclick="GLITCH.staffReply(' + t.id + ')" style="background:var(--neon-blue); border:none; color:#000; padding:6px 16px; font-weight:bold; cursor:pointer;">INVIA</button>';
-      html += '    <button onclick="GLITCH.staffClose(' + t.id + ')" style="background:var(--neon-red); border:none; color:#fff; padding:6px 12px; cursor:pointer;">CHIUDI</button>';
+      html += '    <input type="text" id="reply-' + t.id + '" style="flex:1; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 10px; font-family:monospace;" placeholder="Rispondi all\'operatore..." onkeypress="if(event.key===\'Enter\')GLITCH.staffReply(' + t.id + ')" autocomplete="off"/>';
+      html += '    <button onclick="GLITCH.staffReply(' + t.id + ')" style="background:var(--neon-blue); border:none; color:#000; padding:6px 16px; font-weight:bold; cursor:pointer; font-family:\'Share Tech Mono\';">INVIA</button>';
+      html += '    <button onclick="GLITCH.staffClose(' + t.id + ')" style="background:var(--neon-red); border:none; color:#fff; padding:6px 12px; cursor:pointer; font-family:\'Share Tech Mono\';">CHIUDI</button>';
       html += '  </div>';
       html += '</div>';
     }
 
     container.innerHTML = html;
 
-    // Gestione auto-scroll
+    // Auto-scroll automatico sui messaggi nuovi
     openTickets.forEach(function(t) {
       var box = document.getElementById('chat-' + t.id);
       if (box) box.scrollTop = box.scrollHeight;
@@ -249,18 +249,18 @@ const GLITCH = (function () {
   }
 
   function staffClose(ticketId) {
-    if (confirm('Vuoi chiudere questo ticket?')) {
+    if (confirm('Vuoi contrassegnare questo ticket come RISOLTO?')) {
       closeTicket(ticketId);
       renderTicketsAdmin();
       renderStats();
     }
   }
 
-  /* LOOP DI CONTROLLO EVENTI AUTOMATICI */
+  /* TIMING LOOP RETE LIVE */
   document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('dashboard.html')) {
       renderDashboard();
-      setInterval(renderDashboard, 1000); // Aggiorna la dashboard dello staff ogni secondo!
+      setInterval(renderDashboard, 1200); // Sincronizza lo Staff ogni 1.2 secondi
     }
   });
 
@@ -285,7 +285,6 @@ const GLITCH = (function () {
 
 })();
 
-/* Scorciatoia per il tasto logout */
 window.doLogout = function() {
   GLITCH.staffLogout();
 };
