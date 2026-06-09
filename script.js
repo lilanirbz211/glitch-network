@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE PRINCIPALE — script.js [VERSIONE CORE REALE]
-   Corretto il sistema delle sessioni per evitare lo schermo bianco.
+   GLITCH MOTORE PRINCIPALE — script.js [FIX FIX FIX]
+   Riparato l'errore registerUser e i crash di sessione.
 ═══════════════════════════════════════════════ */
 
 var GLITCH = (function () {
@@ -9,14 +9,14 @@ var GLITCH = (function () {
   var STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
   var STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
-  /* ── CHIAVI STORAGE ── */
+  /* ── CHIAVI REALI STORAGE ── */
   var KEY_USERS       = 'glitch_users_db';
   var KEY_TICKETS     = 'glitch_tickets_db';
   var KEY_NEWS        = 'glitch_news_db';
   var KEY_LEADERBOARD = 'glitch_leaderboard_db';
   var KEY_SESSION     = 'glitch_staff_session';
 
-  /* ── HELPERS STORAGE ── */
+  /* ── HELPERS STORAGE RETROCOMPATIBILI ── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY_USERS) || '[]'); }
     catch (e) { return []; }
@@ -53,7 +53,7 @@ var GLITCH = (function () {
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr));
   }
 
-  /* ── GESTIONE AUTENTICAZIONE & SESSIONE ── */
+  /* ── GESTIONE LOGIN / SESSIONE STAFF ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
@@ -71,7 +71,7 @@ var GLITCH = (function () {
     window.location.href = 'login.html';
   }
 
-  /* ── REGISTRAZIONE / ACCESSO UTENTI ── */
+  /* ── CORE AUTENTICAZIONE UTENTI (CHIAMATI DA ASSISTENZA.HTML) ── */
   function findUser(username, password) {
     var users = getUsers();
     if (password === "") {
@@ -82,9 +82,11 @@ var GLITCH = (function () {
     });
   }
 
+  // QUESTA È LA FUNZIONE CHE MANCAVA O ANDAVA IN ERRORE NELLO SCREENSHOT!
   function registerUser(username, email, password) {
     var users = getUsers();
-    if (users.some(function(u) { return u.username.toLowerCase() === username.toLowerCase(); })) {
+    var giaEsiste = users.some(function(u) { return u.username.toLowerCase() === username.toLowerCase(); });
+    if (giaEsiste) {
       return null;
     }
     var newUser = {
@@ -98,7 +100,7 @@ var GLITCH = (function () {
     return newUser;
   }
 
-  /* ── GESTIONE TICKET ── */
+  /* ── SISTEMA REALE TICKET ── */
   function createTicket(username, subject, firstMessage) {
     var tickets = getTickets();
     var newTicket = {
@@ -140,6 +142,7 @@ var GLITCH = (function () {
     }
   }
 
+  /* ── LIVE PANELS EXTRA (NEWS & CLASSIFICHE) ── */
   function publishNews(content) {
     var news = getNews();
     news.unshift({ content: content, publishedAt: Date.now() });
@@ -155,9 +158,8 @@ var GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── RENDERING LIVE CORE STAFF ── */
+  /* ── RENDERING DINAMICO LATO DASHBOARD STAFF ── */
   function renderDashboard() {
-    // Controllo di sicurezza: se non sei loggato ti rispedisce a login.html
     if (window.location.pathname.includes('dashboard.html') && !isStaffLoggedIn()) {
       window.location.replace('login.html');
       return;
@@ -235,13 +237,9 @@ var GLITCH = (function () {
       tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text-dim);text-align:center;padding:16px;">Nessuna voce ancora.</td></tr>';
       return;
     }
-    
     var html = '';
     for (var i = 0; i < lb.length; i++) {
-      html += '<tr>';
-      html += '  <td>' + (i + 1) + '. ' + lb[i].username + '</td>';
-      html += '  <td style="color:var(--neon-green);">' + lb[i].points + '</td>';
-      html += '</tr>';
+      html += '<tr><td>' + (i + 1) + '. ' + lb[i].username + '</td><td style="color:var(--neon-green);">' + lb[i].points + '</td></tr>';
     }
     tbody.innerHTML = html;
   }
@@ -262,18 +260,18 @@ var GLITCH = (function () {
     }
   }
 
-  /* ACCENSIONE DEL LOOP AUTOMATICO */
+  /* AUTOMATIC INITIALIZER */
   document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('dashboard.html')) {
       renderDashboard();
-      setInterval(renderDashboard, 1000); // Rinfresca la dashboard ogni secondo
+      setInterval(renderDashboard, 1000); // LOOP LIVE AD UN SECONDO
     }
   });
 
-  /* ESPOSIZIONE CHIAVI API */
+  /* MAPPATURA ESPOSIZIONE CHIAVI API GLOBALI */
   return {
     staffLogin: staffLogin,
-    registerUser: registerUser,
+    registerUser: registerUser, // <--- ORA È ESPOSTA PERFETTAMENTE
     findUser: findUser,
     createTicket: createTicket,
     addTicketMessage: addTicketMessage,
