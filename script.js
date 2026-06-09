@@ -1,20 +1,20 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE PRINCIPALE — script.js [VERSIONE ULTRA COMPATIBILE]
-   Nessun utilizzo di backtick per evitare crash dello schermo bianco.
+   GLITCH MOTORE PRINCIPALE — script.js [VERSIONE CORE REALE]
+   Corretto il sistema delle sessioni per evitare lo schermo bianco.
 ═══════════════════════════════════════════════ */
 
-const GLITCH = (function () {
+var GLITCH = (function () {
 
   /* ── CREDENZIALI STAFF ── */
-  const STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
-  const STAFF_PASSWORD = 'K4yn3#S1lv3r';
+  var STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
+  var STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
   /* ── CHIAVI STORAGE ── */
-  const KEY_USERS       = 'glitch_users_db';
-  const KEY_TICKETS     = 'glitch_tickets_db';
-  const KEY_NEWS        = 'glitch_news_db';
-  const KEY_LEADERBOARD = 'glitch_leaderboard_db';
-  const KEY_SESSION     = 'glitch_staff_session';
+  var KEY_USERS       = 'glitch_users_db';
+  var KEY_TICKETS     = 'glitch_tickets_db';
+  var KEY_NEWS        = 'glitch_news_db';
+  var KEY_LEADERBOARD = 'glitch_leaderboard_db';
+  var KEY_SESSION     = 'glitch_staff_session';
 
   /* ── HELPERS STORAGE ── */
   function getUsers() {
@@ -53,7 +53,7 @@ const GLITCH = (function () {
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr));
   }
 
-  /* ── DISCONNETTI/SESSIONE ── */
+  /* ── GESTIONE AUTENTICAZIONE & SESSIONE ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
@@ -71,6 +71,7 @@ const GLITCH = (function () {
     window.location.href = 'login.html';
   }
 
+  /* ── REGISTRAZIONE / ACCESSO UTENTI ── */
   function findUser(username, password) {
     var users = getUsers();
     if (password === "") {
@@ -156,6 +157,7 @@ const GLITCH = (function () {
 
   /* ── RENDERING LIVE CORE STAFF ── */
   function renderDashboard() {
+    // Controllo di sicurezza: se non sei loggato ti rispedisce a login.html
     if (window.location.pathname.includes('dashboard.html') && !isStaffLoggedIn()) {
       window.location.replace('login.html');
       return;
@@ -260,14 +262,15 @@ const GLITCH = (function () {
     }
   }
 
-  /* LOOP DI CONTROLLO */
+  /* ACCENSIONE DEL LOOP AUTOMATICO */
   document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('dashboard.html')) {
       renderDashboard();
-      setInterval(renderDashboard, 1000);
+      setInterval(renderDashboard, 1000); // Rinfresca la dashboard ogni secondo
     }
   });
 
+  /* ESPOSIZIONE CHIAVI API */
   return {
     staffLogin: staffLogin,
     registerUser: registerUser,
@@ -284,7 +287,8 @@ const GLITCH = (function () {
     setStaffSession: setStaffSession,
     staffLogout: staffLogout,
     staffReply: staffReply,
-    staffClose: staffClose
+    staffClose: staffClose,
+    renderDashboard: renderDashboard
   };
 
 })();
