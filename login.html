@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id=\"particles-js\"></div>
+<div id="particles-js"></div>
 
 <div class="page-wrapper">
   <nav>
@@ -54,6 +54,7 @@
 
   function showError(msg) {
     var el = document.getElementById('login-error');
+    if (!el) return;
     el.textContent = msg;
     el.classList.add('visible');
     document.getElementById('staff-username').style.borderColor = 'var(--neon-red)';
@@ -75,6 +76,11 @@
       return;
     }
 
+    if (typeof GLITCH === 'undefined') {
+      alert('Errore critico: Il motore GLITCH (script.js) non è stato caricato correttamente.');
+      return;
+    }
+
     var ok = GLITCH.staffLogin(username, password);
     if (!ok) {
       failCount++;
@@ -91,8 +97,10 @@
     failCount = 0;
     GLITCH.setStaffSession();
     var successEl = document.getElementById('login-success');
-    successEl.textContent = 'Autenticazione riuscita. Caricamento pannello di controllo...';
-    successEl.classList.add('visible');
+    if (successEl) {
+      successEl.textContent = 'Autenticazione riuscita. Caricamento pannello di controllo...';
+      successEl.classList.add('visible');
+    }
     
     setTimeout(function() {
       window.location.href = 'dashboard.html';
