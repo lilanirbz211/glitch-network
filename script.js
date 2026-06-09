@@ -1,54 +1,64 @@
 /**
- * GLITCH OPERATIONS CORE ENGINE v2.0 - VERCEL EDITION
+ * ── GLITCH OPERATIONS CORE ENGINE v4.0 ──
+ * SISTEMA INTEGRATO: OPERATORI, CHAT LIVE, STAFF PORTAL & SECURITY
  */
 
-// Hardcoded Staff Credentials
+// Credenziali di accesso Hardcoded per lo Staff Portal (login.html)
 const STAFF_USER = "GLITCH_SYS_CORE_99X!";
 const STAFF_PASS = "K4yn3#S1lv3r";
 
-// Inizializzazione automatica quando la pagina è pronta
+// Inizializzazione automatica e controlli di sicurezza al caricamento della pagina
 document.addEventListener('DOMContentLoaded', () => {
-    // Sicurezza Dashboard
+    // Controllo Sicurezza per la Dashboard dello Staff (dashboard.html)
     if (window.location.pathname.includes('dashboard.html')) {
         if (sessionStorage.getItem('auth') !== 'true') {
             window.location.replace('login.html');
             return;
         }
+        // Caricamento iniziale dei dati della dashboard
+        renderUsersInDashboard();
+        renderTicketsInDashboard();
     }
 
-    // Aggiornamento dati in tempo reale ogni secondo
+    // Aggiornamento dati in tempo reale ogni secondo (Sincronizzazione Chat e Statistiche)
     setInterval(() => {
-        if (typeof checkLiveTicketStatus === 'function') checkLiveTicketStatus();
-        if (typeof renderUsersInDashboard === 'function') renderUsersInDashboard();
+        if (window.location.pathname.includes('dashboard.html')) {
+            renderUsersInDashboard();
+            renderTicketsInDashboard();
+            updateDashboardStats();
+        }
     }, 1000);
 });
 
-// Oggetto globale GLITCH per l'interfaccia di assistenza.html
+// ==========================================================
+// ── OGGETTO GLOBALE GLITCH (Core Database per assistenza.html) ──
+// ==========================================================
 window.GLITCH = {
-    // Trova l'utente per il login pubblico
+    // Verifica le credenziali dell'utente nel database locale per il Login
     findUser: function(username, password) {
         let usersDb = JSON.parse(localStorage.getItem('glitch_users_db')) || [];
         return usersDb.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
     },
 
-    // Registra l'utente nel database locale dopo l'OTP
+    // Salva il nuovo utente nel database locale dopo la verifica OTP
     registerUser: function(username, email, password) {
         let usersDb = JSON.parse(localStorage.getItem('glitch_users_db')) || [];
         if (usersDb.some(u => u.username.toLowerCase() === username.toLowerCase())) {
             return { success: false, message: 'Questo operatore esiste già nel core.' };
         }
-        let newUser = { username: username, email: email, password: password };
+        let newUser = { username: username, email: email, password: password, regDate: Date.now() };
         usersDb.push(newUser);
         localStorage.setItem('glitch_users_db', JSON.stringify(usersDb));
         return { success: true, user: newUser };
     },
 
-    // Gestione dei Ticket
+    // Recupera lo stato del ticket attivo
     getTickets: function() {
         let ticket = JSON.parse(localStorage.getItem('glitch_live_ticket'));
         return ticket ? [ticket] : [];
     },
 
+    // Inizializza un nuovo ticket di supporto live
     createTicket: function(username, subject, message) {
         let ticket = {
             id: Math.floor(100 + Math.random() * 900),
@@ -56,7 +66,7 @@ window.GLITCH = {
             subject: subject,
             status: 'open',
             messages: [
-                { sender: 'SYSTEM', role: 'staff', text: 'Connessione protetta stabilita. Attendi lo Staff.', time: Date.now() },
+                { sender: 'SYSTEM', role: 'staff', text: 'Connessione protetta stabilita. Attendi risposta dello Staff.', time: Date.now() },
                 { sender: username, role: 'user', text: message, time: Date.now() }
             ]
         };
@@ -64,6 +74,7 @@ window.GLITCH = {
         return ticket;
     },
 
+    // Inserisce un nuovo messaggio all'interno della timeline del ticket
     addTicketMessage: function(ticketId, sender, role, text) {
         let ticket = JSON.parse(localStorage.getItem('glitch_live_ticket'));
         if (ticket) {
@@ -73,7 +84,11 @@ window.GLITCH = {
     }
 };
 
-// Funzione di Login per lo Staff Portal (login.html)
+// ==========================================================
+// ── PANNELLO DI CONTROLLO STAFF & LOGICA DASHBOARD ──
+// ==========================================================
+
+// Autenticazione Accesso Staff (login.html)
 window.doStaffLogin = function() {
     const u = document.getElementById('user-id').value.trim();
     const p = document.getElementById('pass-key').value.trim();
@@ -84,8 +99,4 @@ window.doStaffLogin = function() {
         window.location.href = 'dashboard.html';
     } else {
         if (errorBox) {
-            errorBox.innerText = "CHIAVE RIFIUTATA: Credenziali Staff Errate.";
-            errorBox.style.display = 'block';
-        }
-    }
-};
+            errorBox.innerText = "ACCESSO NEGATO: Chiave crittografica err
