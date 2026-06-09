@@ -1,5 +1,13 @@
+/* ═══════════════════════════════════════════════
+   CONFIGURAZIONE PARTICLES — FIX ERRORE BLOCCANTE
+═══════════════════════════════════════════════ */
+
 document.addEventListener('DOMContentLoaded', function () {
-  if (typeof particlesJS === 'undefined') return;
+  // Se la libreria esterna non si è caricata, evita il crash della pagina
+  if (typeof particlesJS === 'undefined') {
+    console.warn("Avviso: Libreria particlesJS non rilevata. Sfondo animato disattivato.");
+    return; 
+  }
 
   particlesJS('particles-js', {
     particles: {
@@ -46,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function () {
         resize: true
       },
       modes: {
-        repulse: { distance: 120, duration: 0.4 },
-        push: { particles_nb: 5 }
+        repulse: { distance: 100, duration: 0.4 },
+        push: { particles_nb: 4 }
       }
     },
     retina_detect: true
