@@ -1,27 +1,41 @@
 /* ═══════════════════════════════════════════════
-   GLITCH STILE GRAFICO — style.css
+   GLITCH CORE GRAPHICS — IL TUO STILE ORIGINALE
 ═══════════════════════════════════════════════ */
 
 :root {
-  --bg-color: #050510;
-  --card-bg: rgba(10, 10, 25, 0.9);
+  --bg-dark: #0a0a12;
+  --bg-card: rgba(13, 13, 25, 0.85);
   --neon-blue: #00d2ff;
   --neon-red: #ff0055;
+  --neon-purple: #9d4edd;
   --neon-green: #00ffaa;
-  --text-main: #ffffff;
-  --text-dim: #7070a0;
+  --text-main: #f0f0f5;
+  --text-dim: #6c6c8c;
+  --border-glow: rgba(0, 210, 255, 0.2);
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
+  background-color: var(--bg-dark);
   color: var(--text-main);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
 }
 
+#particles-js {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
 .page-wrapper {
+  position: relative;
+  z-index: 2;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -31,81 +45,104 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
-  background: rgba(0, 0, 0, 0.5);
-  border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+  padding: 15px 30px;
+  background: rgba(5, 5, 10, 0.75);
+  backdrop-filter: blur(5px);
+  border-bottom: 1px solid rgba(255, 0, 85, 0.15);
 }
 
 .nav-logo {
-  color: var(--neon-blue);
+  font-family: monospace;
   font-size: 1.8rem;
-  font-weight: bold;
+  font-weight: 900;
+  color: #fff;
   text-decoration: none;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px var(--neon-red);
 }
 
 nav ul {
   display: flex;
   list-style: none;
-  gap: 20px;
+  gap: 25px;
   margin: 0;
   padding: 0;
 }
 
-nav ul li a {
+nav ul a {
   color: var(--text-main);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: color 0.3s;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
 }
 
-nav ul li a:hover {
+nav ul a:hover {
   color: var(--neon-blue);
+  text-shadow: 0 0 5px var(--neon-blue);
 }
 
 .header-logo-wrap {
+  position: relative;
   text-align: center;
-  margin: 40px 0;
+  margin: 50px auto 30px auto;
+  user-select: none;
+}
+
+.huge-title {
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: #fff;
+  text-shadow: 3px 3px 0 var(--neon-red), -3px -3px 0 var(--neon-blue);
+  position: relative;
 }
 
 .header-logo {
   font-size: 2.5rem;
   font-weight: 900;
-  letter-spacing: 4px;
-  color: var(--neon-red);
+  letter-spacing: 6px;
+  color: #fff;
+  text-shadow: 0 0 10px var(--neon-red);
 }
 
 .hero-sub {
-  font-size: 0.8rem;
+  font-family: monospace;
+  font-size: 0.85rem;
   color: var(--text-dim);
-  letter-spacing: 2px;
-  margin-top: 5px;
+  letter-spacing: 3px;
+  margin-top: 8px;
 }
 
 .section {
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding-bottom: 60px;
+  padding: 20px;
 }
 
 .card-container {
-  background: var(--card-bg);
-  border: 1px solid rgba(255, 0, 85, 0.2);
-  padding: 30px;
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 210, 255, 0.25);
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.1);
+  padding: 35px;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 0 20px rgba(255, 0, 85, 0.1);
+  max-width: 420px;
+  box-sizing: border-box;
+  backdrop-filter: blur(4px);
 }
 
 .card-title {
+  font-family: monospace;
   font-size: 1.1rem;
   font-weight: bold;
-  margin-bottom: 20px;
   color: var(--neon-blue);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 10px;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
 }
 
 .form-group {
@@ -114,47 +151,115 @@ nav ul li a:hover {
 
 .form-group label {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-dim);
   margin-bottom: 8px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .form-group input {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(210, 215, 255, 0.1);
-  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 15px;
   color: #fff;
   font-family: monospace;
+  font-size: 0.95rem;
+  transition: all 0.3s;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
 }
 
 .btn {
   width: 100%;
-  padding: 12px;
-  border: none;
+  padding: 14px;
+  font-size: 0.95rem;
   font-weight: bold;
+  letter-spacing: 2px;
+  border: none;
   cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.3s;
+  text-transform: uppercase;
+  transition: all 0.2s;
 }
 
 .btn-red {
   background: var(--neon-red);
   color: #fff;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
 }
 
 .btn-red:hover {
-  background: #cc0044;
+  background: #ff2a75;
+  box-shadow: 0 0 18px rgba(255, 0, 85, 0.5);
 }
 
 .btn-blue {
   background: var(--neon-blue);
-  color: #000;
+  color: #05050a;
+  box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+}
+
+.btn-blue:hover {
+  background: #33e0ff;
+  box-shadow: 0 0 18px rgba(0, 210, 255, 0.5);
+}
+
+.alert {
+  padding: 10px;
+  font-size: 0.85rem;
+  font-family: monospace;
+  margin-bottom: 15px;
+  display: none;
+}
+.alert-error {
+  background: rgba(255, 0, 85, 0.15);
+  border-left: 3px solid var(--neon-red);
+  color: #ff99bb;
+}
+
+/* ── ANIMAZIONI ── */
+.neon-flicker {
+  animation: flicker 4s infinite alternate;
+}
+@keyframes flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 8px var(--neon-red); }
+  20%, 24%, 55% { text-shadow: none; }
+}
+
+.glitch-block {
+  position: fixed;
+  background: rgba(255, 0, 85, 0.15);
+  z-index: 999;
+  pointer-events: none;
+}
+.scanline {
+  position: fixed;
+  left: 0; right: 0;
+  height: 1px;
+  background: rgba(0, 210, 255, 0.3);
+  z-index: 998;
+  pointer-events: none;
+}
+.glitch-rgb {
+  position: absolute;
+  left: 0; right: 0;
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: 10px;
+  z-index: 997;
+  pointer-events: none;
+  text-align: center;
+  opacity: 0.7;
+  animation: rgbGlitch 0.1s infinite;
+}
+@keyframes rgbGlitch {
+  0% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+  100% { transform: translate(0, 0); }
 }
