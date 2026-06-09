@@ -1,22 +1,18 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE PRINCIPALE — script.js (COMPLETO)
-   Sincronizzazione locale e gestione pannello staff.
+   GLITCH MOTORE PRINCIPALE — script.js
 ═══════════════════════════════════════════════ */
 
 const GLITCH = (function () {
 
-  /* ── CREDENZIALI STAFF ── */
   const STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
   const STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
-  /* ── CHIAVI STORAGE ── */
   const KEY_USERS       = 'glitch_users_db';
   const KEY_TICKETS     = 'glitch_tickets_db';
   const KEY_NEWS        = 'glitch_news_db';
   const KEY_LEADERBOARD = 'glitch_leaderboard_db';
   const KEY_SESSION     = 'glitch_staff_session';
 
-  /* ── HELPERS STORAGE (CON SAFE FALLBACK) ── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY_USERS) || '[]'); }
     catch { return []; }
@@ -49,7 +45,6 @@ const GLITCH = (function () {
     try { localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr)); } catch(e) {} 
   }
 
-  /* ── SESSIONE & AUTH ── */
   function isStaffLoggedIn() {
     try { return sessionStorage.getItem(KEY_SESSION) === 'true'; } catch { return false; }
   }
@@ -67,7 +62,6 @@ const GLITCH = (function () {
     window.location.href = 'login.html';
   }
 
-  /* ── LOGICA UTENTI E TICKET ── */
   function findUser(username, password = "") {
     const users = getUsers();
     if (password === "") {
@@ -121,7 +115,6 @@ const GLITCH = (function () {
     }
   }
 
-  /* ── OPERAZIONI DASHBOARD STAFF ── */
   function publishNews(content) {
     const news = getNews();
     news.unshift({ content, publishedAt: Date.now() });
@@ -137,7 +130,6 @@ const GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── RENDERING DELLE INTERFACCE ── */
   function renderDashboard() {
     if (!isStaffLoggedIn()) {
       window.location.replace('login.html');
@@ -231,7 +223,6 @@ const GLITCH = (function () {
     }
   }
 
-  /* ── INTERFACCIA PUBBLICA DEL MODULO ── */
   return {
     staffLogin,
     registerUser,
@@ -254,7 +245,6 @@ const GLITCH = (function () {
 
 })();
 
-/* HOOK DI USCITA GLOBALE */
 window.doLogout = function() {
   GLITCH.staffLogout();
 };
