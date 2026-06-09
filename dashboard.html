@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GLITCH — Pannello di Controllo Staff</title>
+  <title>GLITCH — Portale Staff</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="particles-js"></div>
-
 <div class="page-wrapper">
   <nav>
     <a href="index.html" class="nav-logo neon-flicker">GLITCH</a>
@@ -16,148 +14,58 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="assistenza.html">Assistenza</a></li>
       <li><a href="login.html">Accesso Staff</a></li>
-      <li>
-        <button class="form-link" onclick="doLogout()" style="color:var(--neon-red);text-shadow:0 0 6px var(--neon-red); background:none; border:none; font-family:inherit; cursor:pointer;">
-          &#9632; Disconnetti
-        </button>
-      </li>
     </ul>
   </nav>
 
   <div class="header-logo-wrap">
-    <div class="header-logo" style="color:var(--neon-red);text-shadow:0 0 6px #fff,0 0 18px var(--neon-red);">
-      PANNELLO CONTROLLO
-    </div>
-    <div class="hero-sub">DASHBOARD STAFF // CENTRO OPERATIVO DI RETE PRIVATO</div>
+    <div class="header-logo">PORTALE STAFF</div>
+    <div class="hero-sub">TERMINALE AD ACCESSO LIMITATO</div>
   </div>
 
-  <div class="section" style="max-width:1200px; margin:0 auto; padding:0 20px;">
-    
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin-bottom:30px;">
+  <div class="section">
+    <div class="card-container">
+      <div class="card-title">&#9632; Autenticazione Richiesta</div>
+      <div class="alert alert-error" id="login-error"></div>
       
-      <div class="card-container" style="margin:0;">
-        <div class="card-title">&#9632; Sistema Rete</div>
-        <div style="display:flex; justify-content:space-around; text-align:center; margin-top:15px;">
-          <div>
-            <div style="font-size:2rem; font-weight:bold; color:var(--neon-blue);" id="stat-total-users">0</div>
-            <div style="font-size:0.7rem; color:var(--text-dim);">UTENTI REGISTRATI</div>
-          </div>
-          <div>
-            <div style="font-size:2rem; font-weight:bold; color:var(--neon-red);" id="stat-active-tickets">0</div>
-            <div style="font-size:0.7rem; color:var(--text-dim);">TICKET IN CODA</div>
-          </div>
-        </div>
+      <div class="form-group">
+        <label>Identificativo Operatore</label>
+        <input type="text" id="staff-username" autocomplete="off" placeholder="CORE_ID" />
       </div>
 
-      <div class="card-container" style="margin:0;">
-        <div class="card-title">&#9632; Nuova Trasmissione Live</div>
-        <div class="alert alert-success" id="news-alert" style="display:none;"></div>
-        <div class="form-group" style="margin-top:10px;">
-          <textarea id="news-content" placeholder="Scrivi una comunicazione per la rete pubblica..." style="width:100%; height:65px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); color:#fff; font-family:inherit; padding:8px; resize:none;"></textarea>
-        </div>
-        <button class="btn btn-purple" onclick="doPublishNews()" style="width:100%; padding:8px;">PUBBLICA FEED NEWS</button>
+      <div class="form-group">
+        <label>Chiave di Cifratura (Password)</label>
+        <input type="password" id="staff-password" placeholder="••••••••" />
       </div>
 
-      <div class="card-container" style="margin:0;">
-        <div class="card-title">&#9632; Modifica Crediti Leaderboard</div>
-        <div class="alert alert-success" id="lb-alert" style="display:none;"></div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <input type="text" id="lb-username" placeholder="User" style="flex:1; padding:6px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); color:#fff;" />
-          <input type="number" id="lb-points" placeholder="Punti" style="width:80px; padding:6px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); color:#fff;" />
-        </div>
-        <button class="btn btn-blue" onclick="doUpdateLB()" style="width:100%; padding:8px; margin-top:8px;">AGGIORNA RANK</button>
-      </div>
-
+      <button class="btn btn-red" onclick="doStaffLogin()">ACCEDI AL SISTEMA</button>
     </div>
-
-    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; align-items:start;">
-      
-      <div class="card-container" style="margin:0;">
-        <div class="card-title" style="color:var(--neon-red); border-bottom:1px solid rgba(255,0,85,0.2); padding-bottom:8px;">
-          &#9632; CANALE ASSISTENZA IN ENTRATA
-        </div>
-        <div id="dash-tickets-container" style="margin-top:15px; max-height:600px; overflow-y:auto;">
-          </div>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:24px;">
-        <div class="card-container" style="margin:0;">
-          <div class="card-title">&#9632; Registro Storico Leaderboard</div>
-          <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size:0.8rem; text-align:left;">
-            <thead>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:var(--text-dim);">
-                <th style="padding:6px 0;">OPERATORE</th>
-                <th style="padding:6px 0; text-align:right;">PUNTI</th>
-              </tr>
-            </thead>
-            <tbody id="lb-admin-tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="card-container" style="margin:0;">
-          <div class="card-title">&#9632; Ultime Notizie Rete</div>
-          <div id="news-preview" style="margin-top:10px; max-height:220px; overflow-y:auto;"></div>
-        </div>
-      </div>
-
-    </div>
-
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="script.js"></script>
-<script src="particles-config.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (typeof GLITCH !== 'undefined') {
-      GLITCH.renderDashboard();
+  function doStaffLogin() {
+    var username = document.getElementById('staff-username').value.trim();
+    var password = document.getElementById('staff-password').value;
+
+    if (!username || !password) {
+      alert('Tutti i campi sono obbligatori.');
+      return;
     }
-    renderNewsPreview();
-    
-    window.showAlert = function(id, msg) {
-      var el = document.getElementById(id);
-      if(!el) return;
-      el.textContent = msg;
-      el.style.display = 'block';
-      setTimeout(function() { el.style.display = 'none'; }, 4000);
-    };
-  });
 
-  function doPublishNews() {
-    var content = document.getElementById('news-content').value.trim();
-    if (!content) { showAlert('news-alert', 'Inserisci prima il contenuto della notizia.'); return; }
-    GLITCH.publishNews(content);
-    document.getElementById('news-content').value = '';
-    showAlert('news-alert', 'Notizia inserita nel feed globale.');
-    renderNewsPreview();
-  }
-
-  function renderNewsPreview() {
-    var news = GLITCH.getNews();
-    var container = document.getElementById('news-preview');
-    if (!container) return;
-    
-    var html = '';
-    var max = news.length > 5 ? 5 : news.length;
-    for(var i = 0; i < max; i++) {
-      html += '<div style="padding:8px; border:1px solid rgba(138,43,226,0.2); border-radius:3px; background:rgba(0,0,0,0.3); margin-bottom:6px;">';
-      html += '  <span style="color:var(--text-dim); font-size:0.65rem;">' + new Date(news[i].publishedAt).toLocaleString('it-IT') + '</span>';
-      html += '  <p style="font-size:0.78rem; color:#d8c8f8; margin-top:4px; margin-bottom:0;">' + news[i].content + '</p>';
-      html += '</div>';
+    if (typeof GLITCH === 'undefined') {
+      alert('Errore: script.js non trovato! Controlla di averlo caricato su GitHub/Vercel.');
+      return;
     }
-    container.innerHTML = html;
-  }
 
-  function doUpdateLB() {
-    var username = document.getElementById('lb-username').value.trim();
-    var points   = parseInt(document.getElementById('lb-points').value, 10);
-    if (!username || isNaN(points)) { showAlert('lb-alert', 'Dati incompleti.'); return; }
-    GLITCH.updateLeaderboard(username, points);
-    document.getElementById('lb-username').value = '';
-    document.getElementById('lb-points').value = '';
-    showAlert('lb-alert', 'Classifica aggiornata.');
-    if(typeof GLITCH !== 'undefined') { GLITCH.renderDashboard(); }
+    var ok = GLITCH.staffLogin(username, password);
+    if (!ok) {
+      alert('Credenziali errate.');
+      return;
+    }
+
+    GLITCH.setStaffSession();
+    window.location.href = 'dashboard.html';
   }
 </script>
 </body>
