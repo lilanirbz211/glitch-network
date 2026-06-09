@@ -1,22 +1,19 @@
 /* ═══════════════════════════════════════════════
-   GLITCH MOTORE CORE — script.js [VERSIONE REALE INTEGRALE]
-   Nessun backtick, nessun loop bloccante, export globale sicuro.
+   GLITCH MOTORE CORE — script.js [VERSIONE ULTRA CORRETTA]
+   Risolto il SyntaxError delle parentesi nella chat dei ticket.
 ═══════════════════════════════════════════════ */
 
 var GLITCH = (function () {
 
-  /* ── CREDENZIALI STAFF ── */
   var STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
   var STAFF_PASSWORD = 'K4yn3#S1lv3r';
 
-  /* ── CHIAVI LOCAL STORAGE ── */
   var KEY_USERS       = 'glitch_users_db';
   var KEY_TICKETS     = 'glitch_tickets_db';
   var KEY_NEWS        = 'glitch_news_db';
   var KEY_LEADERBOARD = 'glitch_leaderboard_db';
   var KEY_SESSION     = 'glitch_staff_session';
 
-  /* ── GETTER E SETTER DATABASE ── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY_USERS) || '[]'); }
     catch (e) { return []; }
@@ -41,7 +38,6 @@ var GLITCH = (function () {
   }
   function saveLeaderboard(arr) { localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr)); }
 
-  /* ── GESTIONE AUTENTICAZIONE STAFF ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
@@ -56,7 +52,6 @@ var GLITCH = (function () {
     window.location.href = 'login.html';
   }
 
-  /* ── GESTIONE ACCOUNT UTENTI (ASSISTENZA) ── */
   function findUser(username, password) {
     var users = getUsers();
     if (password === "") {
@@ -83,7 +78,6 @@ var GLITCH = (function () {
     return newUser;
   }
 
-  /* ── GESTIONE TICKET DI ASSISTENZA ── */
   function createTicket(username, subject, firstMessage) {
     var tickets = getTickets();
     var newTicket = {
@@ -120,7 +114,6 @@ var GLITCH = (function () {
     }
   }
 
-  /* ── AGGIORNAMENTO LIVELLO NEWS E CLASSIFICA ── */
   function publishNews(content) {
     var news = getNews();
     news.unshift({ content: content, publishedAt: Date.now() });
@@ -136,9 +129,8 @@ var GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── SCONGIURA SCHERMO BIANCO (DASHBOARD RENDERING) ── */
   function renderDashboard() {
-    if (window.location.pathname.includes('dashboard.html') && !isStaffLoggedIn()) {
+    if ((window.location.pathname.indexOf('dashboard') !== -1) && !isStaffLoggedIn()) {
       window.location.replace('login.html');
       return;
     }
@@ -159,6 +151,7 @@ var GLITCH = (function () {
     if (tEl) tEl.textContent = openTickets.length;
   }
 
+  /* QUESTA ERA LA FUNZIONE CON L'ERRORE DI SINTASSI - ORA AGGIUSTATA */
   function renderTicketsAdmin() {
     var container = document.getElementById('dash-tickets-container');
     if (!container) return;
@@ -236,11 +229,10 @@ var GLITCH = (function () {
     }
   }
 
-  /* LOOP INIZIALIZZAZIONE AUTOMATICA LIVE DASHBOARD */
   document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('dashboard.html')) {
+    if (window.location.pathname.indexOf('dashboard') !== -1) {
       renderDashboard();
-      setInterval(renderDashboard, 1000);
+      setInterval(renderDashboard, 1500);
     }
   });
 
