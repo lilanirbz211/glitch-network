@@ -1,20 +1,14 @@
-/* ═══════════════════════════════════════════════
-   GLITCH CORE ENGINE — script.js [VERSIONE SECURE & EVENT-DRIVEN]
-   - Architettura Event-Driven tramite Storage Event Listener
-   - Protezione Totale contro Cross-Site Scripting (XSS)
-   - Chiusura corretta dell'IIFE e sanitizzazione DOM imperativa
-═══════════════════════════════════════════════ */
-
 var GLITCH = (function () {
 
-  // Chiavi Storage immutabili
+  var STAFF_USERNAME = 'GLITCH_SYS_CORE_99X!';
+  var STAFF_PASSWORD = 'K4yn3#S1lv3r';
+
   var KEY_USERS       = 'glitch_users_db';
   var KEY_TICKETS     = 'glitch_tickets_db';
   var KEY_NEWS        = 'glitch_news_db';
   var KEY_LEADERBOARD = 'glitch_leaderboard_db';
   var KEY_SESSION     = 'glitch_staff_session';
 
-  /* ── DATA LAYER (SAFE PARSING) ── */
   function getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY_USERS) || '[]'); }
     catch (e) { return []; }
@@ -39,31 +33,20 @@ var GLITCH = (function () {
   }
   function saveLeaderboard(arr) { localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(arr)); }
 
-  /* ── AUTHENTICATION LAYER (MOCK PER BACKEND FUTURE INTEGRATION) ── */
   function isStaffLoggedIn() {
     return sessionStorage.getItem(KEY_SESSION) === 'true';
   }
-
   function staffLogin(username, password) {
-    /* [SECURITY NOTE] Le credenziali plain-text sono state rimosse dal core locale. 
-       In produzione questo blocco andrà sostituito con:
-       return fetch('/api/auth', { method: 'POST', body: JSON.stringify({username, password}) });
-    */
-    var SYSTEM_U = 'GLITCH_SYS_CORE_99X!';
-    var SYSTEM_P = 'K4yn3#S1lv3r';
-    return username === SYSTEM_U && password === SYSTEM_P;
+    return username === STAFF_USERNAME && password === STAFF_PASSWORD;
   }
-
   function setStaffSession() {
     sessionStorage.setItem(KEY_SESSION, 'true');
   }
-
   function staffLogout() {
     sessionStorage.removeItem(KEY_SESSION);
     window.location.href = 'login.html';
   }
 
-  /* ── BUSINESS LOGIC ── */
   function findUser(username, password) {
     var users = getUsers();
     if (password === "") {
@@ -141,15 +124,16 @@ var GLITCH = (function () {
     saveLeaderboard(lb);
   }
 
-  /* ── RENDERING LAYER (XSS SAFE VIA DOM CREATION) ── */
   function renderDashboard() {
-    if ((window.location.pathname.indexOf('dashboard') !== -1) && !isStaffLoggedIn()) {
-      window.location.replace('login.html');
-      return;
+    if (window.location.pathname.indexOf('dashboard') !== -1) {
+      if (!isStaffLoggedIn()) {
+        window.location.replace('login.html');
+        return;
+      }
+      renderStats();
+      renderTicketsAdmin();
+      renderLeaderboardAdmin();
     }
-    renderStats();
-    renderTicketsAdmin();
-    renderLeaderboardAdmin();
   }
 
   function renderStats() {
@@ -168,134 +152,52 @@ var GLITCH = (function () {
     var container = document.getElementById('dash-tickets-container');
     if (!container) return;
 
-    container.textContent = ''; // Svuotamento sicuro privo di XSS leaks
-
     var tickets = getTickets();
     var openTickets = tickets.filter(function(t) { return t.status === 'open'; });
 
     if (openTickets.length === 0) {
-      var emptyMsg = document.createElement('div');
-      emptyMsg.style.cssText = 'color:var(--text-dim); font-size:0.8rem; font-style:italic; padding:10px;';
-      emptyMsg.textContent = 'Nessun ticket attivo nel terminale.';
-      container.appendChild(emptyMsg);
+      container.innerHTML = '<div style="color:var(--text-dim); padding:10px;">Nessun ticket attivo nel terminale.</div>';
       return;
     }
 
-    openTickets.forEach(function(t) {
-      var card = document.createElement('div');
-      card.style.cssText = 'border:1px solid rgba(138,43,226,0.3); background:rgba(5,5,16,0.6); padding:14px; border-radius:4px; margin-bottom:12px;';
-
-      // Header Meta Ticket
-      var header = document.createElement('div');
-      header.style.cssText = 'display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;';
+    var html = '';
+    for (var i = 0; i < openTickets.length; i++) {
+      var t = openTickets[i];
+      html += '<div style="border:1px solid rgba(138,43,226,0.3); background:rgba(5,5,16,0.6); padding:14px; margin-bottom:12px;">';
+      html += '  <div style="color:var(--neon-red); font-weight:bold; margin-bottom:10px;">TICKET #' + t.id + ' | User: ' + t.username + '</div>';
+      html += '  <div id="chat-' + t.id + '" style="height:140px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:10px; margin-bottom:10px;">';
       
-      var tIdSpan = document.createElement('span');
-      tIdSpan.style.cssText = 'color:var(--neon-red); font-weight:bold;';
-      tIdSpan.textContent = 'TICKET SYSTEM #' + t.id;
+      for (var j = 0; j < t.messages.length; j++) {
+        var m = t.messages[j];
+        var color = (m.role === 'staff') ? 'var(--neon-red)' : 'var(--neon-blue)';
+        html += '<div style="margin-bottom:6px;"><span style="color:' + color + ';">[' + m.sender + ']</span> <span style="color:#fff;">' + m.text + '</span></div>';
+      }
+      
+      html += '  </div>';
+      html += '  <div style="display:flex; gap:8px;">';
+      html += '    <input type="text" id="reply-' + t.id + '" style="flex:1; background:rgba(0,0,0,0.7); color:#fff; padding:6px;" placeholder="Rispondi..." />';
+      html += '    <button onclick="GLITCH.staffReply(' + t.id + ')" style="background:var(--neon-blue); padding:6px 16px; cursor:pointer;">INVIA</button>';
+      html += '    <button onclick="GLITCH.staffClose(' + t.id + ')" style="background:var(--neon-red); color:#fff; padding:6px 12px; cursor:pointer;">CHIUDI</button>';
+      html += '  </div>';
+      html += '</div>';
+    }
 
-      var tMetaSpan = document.createElement('span');
-      tMetaSpan.style.cssText = 'color:var(--neon-blue);';
-      tMetaSpan.textContent = 'User: ' + t.username + ' [' + t.subject + ']';
-
-      header.appendChild(tIdSpan);
-      header.appendChild(tMetaSpan);
-      card.appendChild(header);
-
-      // Chat Log Window
-      var chatBox = document.createElement('div');
-      chatBox.id = 'chat-' + t.id;
-      chatBox.style.cssText = 'height:140px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:10px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.05);';
-
-      t.messages.forEach(function(m) {
-        var msgRow = document.createElement('div');
-        msgRow.style.cssText = 'font-size:0.8rem; margin-bottom:6px;';
-
-        var senderSpan = document.createElement('span');
-        senderSpan.style.color = m.role === 'staff' ? 'var(--neon-red)' : 'var(--neon-blue)';
-        senderSpan.style.fontWeight = 'bold';
-        senderSpan.textContent = '[' + m.sender + '] ';
-
-        var textSpan = document.createElement('span');
-        textSpan.style.color = '#fff';
-        textSpan.textContent = m.text; // Sanitizzazione nativa automatica
-
-        msgRow.appendChild(senderSpan);
-        msgRow.appendChild(textSpan);
-        chatBox.appendChild(msgRow);
-      });
-
-      card.appendChild(chatBox);
-
-      // Form d'invio/risposta controlli
-      var actionRow = document.createElement('div');
-      actionRow.style.cssText = 'display:flex; gap:8px;';
-
-      var input = document.createElement('input');
-      input.type = 'text';
-      input.id = 'reply-' + t.id;
-      input.autocomplete = 'off';
-      input.placeholder = 'Rispondi...';
-      input.style.cssText = 'flex:1; background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:6px 10px; font-family:monospace;';
-      input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') GLITCH.staffReply(t.id);
-      });
-
-      var btnReply = document.createElement('button');
-      btnReply.textContent = 'INVIA';
-      btnReply.style.cssText = 'background:var(--neon-blue); border:none; color:#000; padding:6px 16px; font-weight:bold; cursor:pointer; font-family:monospace;';
-      btnReply.onclick = function() { GLITCH.staffReply(t.id); };
-
-      var btnClose = document.createElement('button');
-      btnClose.textContent = 'CHIUDI';
-      btnClose.style.cssText = 'background:var(--neon-red); border:none; color:#fff; padding:6px 12px; cursor:pointer; font-family:monospace;';
-      btnClose.onclick = function() { GLITCH.staffClose(t.id); };
-
-      actionRow.appendChild(input);
-      actionRow.appendChild(btnReply);
-      actionRow.appendChild(btnClose);
-      card.appendChild(actionRow);
-
-      container.appendChild(card);
-
-      // Auto-Scroll chat log
-      setTimeout(function() {
-        var box = document.getElementById('chat-' + t.id);
-        if (box) box.scrollTop = box.scrollHeight;
-      }, 10);
-    });
+    container.innerHTML = html;
   }
 
   function renderLeaderboardAdmin() {
     var tbody = document.getElementById('lb-admin-tbody');
     if (!tbody) return;
-    
-    tbody.textContent = ''; // Clear sicuro
-
     var lb = getLeaderboard();
     if (lb.length === 0) {
-      var tr = document.createElement('tr');
-      var td = document.createElement('td');
-      td.colSpan = 2;
-      td.style.cssText = 'color:var(--text-dim);text-align:center;padding:16px;';
-      td.textContent = 'Nessuna voce in classifica.';
-      tr.appendChild(td);
-      tbody.appendChild(tr);
+      tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text-dim);text-align:center;">Nessuna voce</td></tr>';
       return;
     }
-
+    var html = '';
     for (var i = 0; i < lb.length; i++) {
-      var trRow = document.createElement('tr');
-      var tdUser = document.createElement('td');
-      tdUser.textContent = (i + 1) + '. ' + lb[i].username;
-
-      var tdPts = document.createElement('td');
-      tdPts.style.color = 'var(--neon-green)';
-      tdPts.textContent = lb[i].points;
-
-      trRow.appendChild(tdUser);
-      trRow.appendChild(tdPts);
-      tbody.appendChild(trRow);
+      html += '<tr><td>' + lb[i].username + '</td><td style="color:var(--neon-green);">' + lb[i].points + '</td></tr>';
     }
+    tbody.innerHTML = html;
   }
 
   function staffReply(ticketId) {
@@ -314,23 +216,12 @@ var GLITCH = (function () {
     }
   }
 
-  /* ── ARCHITETTURA EVENT-DRIVEN (STORAGE AUDITING) ── */
-  // Inizializzazione controllata all'evento DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.indexOf('dashboard') !== -1) {
-      renderDashboard();
-    }
-  });
+  // Si avvia solo quando la pagina ha finito di caricarsi
+  window.onload = function() {
+    renderDashboard();
+    setInterval(renderDashboard, 2000);
+  };
 
-  // Aggiornamento selettivo senza l'uso di timer ciclici ad alto impatto CPU
-  window.addEventListener('storage', function(event) {
-    var targetKeys = [KEY_USERS, KEY_TICKETS, KEY_NEWS, KEY_LEADERBOARD, KEY_SESSION];
-    if (targetKeys.indexOf(event.key) !== -1 && window.location.pathname.indexOf('dashboard') !== -1) {
-      renderDashboard();
-    }
-  });
-
-  /* API PUBBLICHE ESPRESE DALL'IIFE */
   return {
     staffLogin: staffLogin,
     registerUser: registerUser,
@@ -343,17 +234,14 @@ var GLITCH = (function () {
     getNews: getNews,
     updateLeaderboard: updateLeaderboard,
     getLeaderboard: getLeaderboard,
-    isStaffLoggedIn: isStaffLoggedIn,
     setStaffSession: setStaffSession,
     staffLogout: staffLogout,
     staffReply: staffReply,
-    staffClose: staffClose,
-    renderDashboard: renderDashboard
+    staffClose: staffClose
   };
 
 })();
 
-// Global hook per eventi inline di escape navigazione
-window.doLogout = function() {
-  GLITCH.staffLogout();
-};
+function doLogout() {
+  if(GLITCH) GLITCH.staffLogout();
+}
