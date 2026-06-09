@@ -3,6 +3,10 @@
 <script src="particles-config.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Forza un check immediato della sessione
+    if (typeof GLITCH !== 'undefined') {
+      GLITCH.renderDashboard();
+    }
     renderNewsPreview();
     
     window.showAlert = function(id, msg) {
